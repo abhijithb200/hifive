@@ -14,8 +14,10 @@
     "@react-native-firebase/auth": "^10.2.0",
     "@react-native-firebase/database": "^10.2.0",
     "@react-native-firebase/firestore": "^10.2.0",
+    "expo-contacts": "^8.6.0",
     "react": "16.13.1",
-    "react-native": "0.63.4"
+    "react-native": "0.63.4",
+    "react-native-unimodules": "^0.12.0"
   },
   "devDependencies": {
     "@babel/core": "7.12.10",

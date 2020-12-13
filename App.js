@@ -6,7 +6,7 @@
  * @flow strict-local
  */
 
-import React from 'react';
+import React,{useEffect} from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -25,8 +25,23 @@ import {
   ReloadInstructions,
 } from 'react-native/Libraries/NewAppScreen';
 import firestore from '@react-native-firebase/firestore';
-
+import * as Contacts from 'expo-contacts'
 const App = () => {
+  useEffect(() => {
+    (async () => {
+      const { status } = await Contacts.requestPermissionsAsync();
+      if (status === 'granted') {
+        const { data } = await Contacts.getContactsAsync({
+          fields: [Contacts.Fields.Emails],
+        });
+
+        if (data.length > 0) {
+          const contact = data[0];
+          console.log(contact);
+        }
+      }
+    })();
+  }, []);
   const add=()=>{
     firestore().collection('Users').doc('test').set({})
   }
