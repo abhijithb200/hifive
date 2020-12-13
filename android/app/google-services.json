@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1076042242300",
+    "project_id": "hifive-bd785",
+    "storage_bucket": "hifive-bd785.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1076042242300:android:7949b2cd7e2fb8341edf79",
+        "android_client_info": {
+          "package_name": "com.hifive"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1076042242300-fqbi8jqrb1gde7s7nfeke58c3vd45cpd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyALT01hSUZIxQAVo5_k_PQmJffKrTwwoTs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1076042242300-fqbi8jqrb1gde7s7nfeke58c3vd45cpd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
