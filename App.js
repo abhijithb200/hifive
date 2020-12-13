@@ -1,58 +1,44 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
 
-import React,{useEffect} from 'react';
-import {
-  SafeAreaView,
-  StyleSheet,
-  ScrollView,
-  View,
-  Text,
-  StatusBar,
- Button
-} from 'react-native';
+import React from 'react';
+import { StatusBar, Text, TextBase, View } from 'react-native';
+import Home from './src/components/Home'
+import {createStackNavigator} from '@react-navigation/stack'
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { NavigationContainer } from '@react-navigation/native';
+import Contacts from './src/components/Contacts';
+import Chat from './src/components/Chat';
 
-import {
-  Header,
-  LearnMoreLinks,
-  Colors,
-  DebugInstructions,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
-import firestore from '@react-native-firebase/firestore';
-import * as Contacts from 'expo-contacts'
-const App = () => {
-  useEffect(() => {
-    (async () => {
-      const { status } = await Contacts.requestPermissionsAsync();
-      if (status === 'granted') {
-        const { data } = await Contacts.getContactsAsync({
-          fields: [Contacts.Fields.Emails],
-        });
 
-        if (data.length > 0) {
-          const contact = data[0];
-          console.log(contact);
-        }
-      }
-    })();
-  }, []);
-  const add=()=>{
-    firestore().collection('Users').doc('test').set({})
-  }
+
+const Stack = createStackNavigator();
+const Tabs = createMaterialTopTabNavigator();
+
+const RootHome = ()=>{
+  return(
+    <Tabs.Navigator style={{marginTop:StatusBar.currentHeight,}}  tabBarOptions={{
+      activeTintColor: 'white',
+      labelStyle: { fontSize: 15,fontWeight:'bold' },
+      inactiveTintColor: 'gray',
+      style: { backgroundColor: '#4B4B4B' },
+      showIcon:true,
+      
+    }} >
+      <Tabs.Screen name="Friends" component={Home}/>
+      <Tabs.Screen name="Contacts" component={Contacts}/>
+    </Tabs.Navigator>
+  )
+}
+export default function App() {
   return (
-    <>
-    <Text>hey</Text>
-    <Button title="Click" onPress={add()}/>
 
-    </>
+      <NavigationContainer>
+        <Stack.Navigator headerMode='none'>
+        <Stack.Screen name='Home' component={RootHome}/>
+        <Stack.Screen name='Chat' component={Chat}/>
+        </Stack.Navigator>
+        
+      </NavigationContainer>
+
   );
-};
+}
 
-
-export default App;
