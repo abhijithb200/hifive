@@ -1,17 +1,40 @@
 import React, { useState ,useEffect,useRef} from 'react'
-import { StyleSheet, Text, View ,StatusBar,Image,BackHandler} from 'react-native'
+import { StyleSheet, Text, View ,ActivityIndicator,Image,BackHandler} from 'react-native'
 import { AntDesign } from '@expo/vector-icons';
 import user_number from '../../assets/user_number'
-
+import Proximity from 'react-native-proximity';
 import firestore  from '@react-native-firebase/firestore';
-
+import axios from 'axios';
+import Pusher from 'pusher-js/react-native';
 
 export default function Chat({navigation,route}) {
     const [screennum,setScreennum] = useState();
     const [counter,setCounter] = useState(3);
-    const [hasProximity,setHasProximity] = useState(false);
-
+    
+    
+    
+    const [friendProximity,setfriendProximity] = useState(false);
+    const hasProximity = useRef(false);
+    const addchat = useRef(false);
     const status = useRef()
+
+    useEffect(() => {
+        var pusher = new Pusher('a2145bfefb52497e7fcf', {
+            cluster: 'ap2'
+          });
+          
+          var channel = pusher.subscribe('hifive');
+          //change parameter to user_number for production
+          channel.bind(route.params.number, function(data) {
+           setfriendProximity(data.hifivestatus);
+          });
+         
+          return ()=>{
+        channel.unbind()
+        }
+        
+    }, [])
+
     useEffect(() => {
             firestore().collection('users').doc(route.params.number).onSnapshot(snapshot=>{
                 setScreennum(snapshot.data().onscreen)
@@ -20,10 +43,35 @@ export default function Chat({navigation,route}) {
             return ()=>{
                 BackHandler.removeEventListener('hardwareBackPress', goooBack);
             }
-            
     }, [])
-    // const callback =({proximity})=>setHasProximity(!!proximity)
+
+    useEffect(() => {
+        if(hasProximity.current){
+            axios.get(`http://192.168.1.5:9000/hifi/${route.params.number}`).then(data=>{
+                console.log(data.data)
+            }).catch(err=>console.log(err))
+        }
+     
+    }, [hasProximity.current])
+    
+    useEffect(() => {
+        if(addchat){
+            console.log('hey')
+            firestore().collection('users').doc(user_number).collection('friend').doc(route.params.number).collection('message').add({
+                status:true,
+                timestamp:firestore.FieldValue.serverTimestamp()
+            })
+        }
+    }, [addchat])
     const countdown=()=>{
+        if(friendProximity == hasProximity.current){
+            addchat.current = true;
+        }
+        const callback =({proximity})=>{
+         if(proximity){
+             hasProximity.current=true;
+         }   
+        }
         setTimeout(()=>{
             setCounter(counter =>counter-1)
         },2000);
@@ -36,20 +84,37 @@ export default function Chat({navigation,route}) {
                     </Text>
                 </View>
             )
-        }else if(counter < 0 && counter > -4){
+        }else if(counter <=1 && counter > -4){
             
-            // Proximity.addListener(callback);
+             Proximity.addListener(callback);
+       
             return(
                 <View>
-                    <Text style={{color:'white'}}>{hasProximity? 'true':'false'}</Text>
-                
+                    <Text style={{color:'white'}}>{hasProximity.current? 'true':'false'}</Text>
+
                 </View>
             )
             
-        }else if(counter < -5){
-        //    Proximity.removeListener(callback);
+        }else if(counter <= -5 && hasProximity.current){
+            Proximity.removeListener(callback);
+            return(
+                <View>
+                    {
+                        // friendProximity == hasProximity.current ? <Text style={{color:'white'}}>SUSSESSFULLY HIFIVED</Text> :<Text style={{color:'white'}}>Someone missed the timing</Text> 
+                        !friendProximity || counter > -15 ? <ActivityIndicator color='white'/> : friendProximity == hasProximity.current? <><View><Text style={{color:'white'}}>Successfully hifived</Text>  </View></>: <Text style={{color:'white'}}>Friend forget to hifi</Text>                
+                    }
+                </View>
+            )
+        }else if(!hasProximity.current){
+            return(
+                <View>
+                    <Text style={{color:'white'}}>faalse</Text>
+
+                </View>
+            )
+            
         }
-      
+     
     }
     const goooBack=()=>{
         
@@ -62,8 +127,7 @@ export default function Chat({navigation,route}) {
     
     return (
         <View style={{backgroundColor:'black',height:'100%',
-        overflow:"scroll"}}>
-            
+        overflow:"scroll"}}> 
             <View style={{flexDirection:'row',alignItems:'center',padding:10,backgroundColor:'#6C6666'}}>
             <AntDesign name="back" size={24} color="white" onPress={()=>gooBack()}/>
             <Image source={require('../../assets/face.webp')} style={{width:60,height:60,borderRadius:100,marginLeft:20}}/>
@@ -73,10 +137,16 @@ export default function Chat({navigation,route}) {
             <Text style={{color:'white',marginLeft:10}}>{screennum===user_number ? status.current='onscreen':status.current=null}</Text>
             </View>
             </View>
+            <View style={{marginLeft:'auto',paddingRight:10}}>
+            {
+               status.current!='onscreen' && <AntDesign name="plus" size={30} color="white" />
+            }
+            </View>
+           
             </View>
             <View style={{flex:1,alignItems:'center',justifyContent:'center'}}>
            {
-               status.current=='onscreen'? countdown() : <AntDesign name="pluscircleo" size={100} color="white" />
+               status.current=='onscreen'&& countdown() 
            }
             
             </View>
@@ -84,5 +154,5 @@ export default function Chat({navigation,route}) {
         </View>
     )
 }
-
+//: <AntDesign name="pluscircleo" size={30} color="white" />
 const styles = StyleSheet.create({})
