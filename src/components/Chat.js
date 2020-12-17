@@ -7,7 +7,7 @@ import firestore  from '@react-native-firebase/firestore';
 import axios from 'axios';
 import Pusher from 'pusher-js/react-native';
 import { FlatList } from 'react-native-gesture-handler';
-
+import io from 'socket.io-client';
 export default function Chat({navigation,route}) {
      const user_number = useSelector(state => state.user.user)
     const [screennum,setScreennum] = useState();
@@ -20,22 +20,29 @@ export default function Chat({navigation,route}) {
     const addchat = useRef(false);
     const status = useRef()
 
-    useEffect(() => {
-        var pusher = new Pusher('a2145bfefb52497e7fcf', {
-            cluster: 'ap2'
-          });
+    // useEffect(() => {
+    //     var pusher = new Pusher('a2145bfefb52497e7fcf', {
+    //         cluster: 'ap2'
+    //       });
           
-          var channel = pusher.subscribe('hifive');
-          //change parameter to user_number for production
-          channel.bind(route.params.number, function(data) {
-           setfriendProximity(data.hifivestatus);
-          });
+    //       var channel = pusher.subscribe('hifive');
+    //       //change parameter to user_number for production
+    //       channel.bind(route.params.number, function(data) {
+    //        setfriendProximity(data.hifivestatus);
+    //       });
          
-          return ()=>{
-        channel.unbind()
-        }
+    //       return ()=>{
+    //     channel.unbind()
+    //     }
         
-    }, [])
+    // }, [])
+    useEffect(() => {
+        const socket = io('http://192.168.1.5:9000');
+        socket.on(route.params.number,data=>{
+            setfriendProximity(data.hifivestatus);
+        })
+         console.log('andi')
+     }, [])
 
     useEffect(() => {
             firestore().collection('users').doc(route.params.number).onSnapshot(snapshot=>{
