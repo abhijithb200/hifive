@@ -1,7 +1,7 @@
 import React,{useEffect,useState} from 'react'
 import { StyleSheet, Text, View ,FlatList,Button} from 'react-native'
 import * as Cont from 'expo-contacts'
-
+import {useSelector} from 'react-redux'
 import Frientlist from './Friendlist'
 import firestore  from '@react-native-firebase/firestore';
 
@@ -10,6 +10,7 @@ export default function Contacts({route}) {
   const [localContacts,setLocalContacts] = useState([]);
   const [realusers,setRealusers] = useState([]);
   const [displayusers,setDisplayusers] = useState(null);
+  const user_number = useSelector(state => state.user.user)
   
   const [friend,setfriends] = useState()
 

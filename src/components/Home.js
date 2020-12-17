@@ -2,9 +2,10 @@ import React,{useState,useEffect} from 'react'
 import { StyleSheet, FlatList, View ,TouchableOpacity} from 'react-native'
 import Frientlist from './Friendlist'
 import firestore  from '@react-native-firebase/firestore';
-import user_number from '../../assets/user_number'
+import {useSelector} from 'react-redux'
 
 export default function Home({navigation}) {
+    const user_number = useSelector(state => state.user.user)
     const [friend,setfriends] = useState()
     useEffect(() => {
        firestore().collection('users').doc(user_number).collection('friend').onSnapshot(snapshot=>{

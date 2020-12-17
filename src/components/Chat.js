@@ -1,17 +1,19 @@
 import React, { useState ,useEffect,useRef} from 'react'
 import { StyleSheet, Text, View ,ActivityIndicator,Image,BackHandler} from 'react-native'
 import { AntDesign } from '@expo/vector-icons';
-import user_number from '../../assets/user_number'
+import {useSelector} from 'react-redux'
 import Proximity from 'react-native-proximity';
 import firestore  from '@react-native-firebase/firestore';
 import axios from 'axios';
 import Pusher from 'pusher-js/react-native';
+import { FlatList } from 'react-native-gesture-handler';
 
 export default function Chat({navigation,route}) {
+     const user_number = useSelector(state => state.user.user)
     const [screennum,setScreennum] = useState();
     const [counter,setCounter] = useState(3);
     
-    
+    const [chat,setChat] = useState([]);
     
     const [friendProximity,setfriendProximity] = useState(false);
     const hasProximity = useRef(false);
@@ -54,17 +56,28 @@ export default function Chat({navigation,route}) {
      
     }, [hasProximity.current])
     
+        useEffect(() => {
+            firestore().collection('users').doc(user_number).collection('friend').doc(route.params.number).collection('message').orderBy('timestamp','desc').onSnapshot(snapshot=>{
+                setChat(snapshot.docs.map(doc=>{
+                    
+                    return([doc.data()]
+                        
+                    )
+                }))
+            })
+           
+        }, [])
     useEffect(() => {
-        if(addchat){
+        if(addchat.current == true){
             console.log('hey')
             firestore().collection('users').doc(user_number).collection('friend').doc(route.params.number).collection('message').add({
                 status:true,
                 timestamp:firestore.FieldValue.serverTimestamp()
             })
         }
-    }, [addchat])
+    }, [addchat.current])
     const countdown=()=>{
-        if(friendProximity == hasProximity.current){
+        if( hasProximity.current && friendProximity){
             addchat.current = true;
         }
         const callback =({proximity})=>{
@@ -72,6 +85,7 @@ export default function Chat({navigation,route}) {
              hasProximity.current=true;
          }   
         }
+ 
         setTimeout(()=>{
             setCounter(counter =>counter-1)
         },2000);
@@ -101,8 +115,9 @@ export default function Chat({navigation,route}) {
                 <View>
                     {
                         // friendProximity == hasProximity.current ? <Text style={{color:'white'}}>SUSSESSFULLY HIFIVED</Text> :<Text style={{color:'white'}}>Someone missed the timing</Text> 
-                        !friendProximity || counter > -15 ? <ActivityIndicator color='white'/> : friendProximity == hasProximity.current? <><View><Text style={{color:'white'}}>Successfully hifived</Text>  </View></>: <Text style={{color:'white'}}>Friend forget to hifi</Text>                
-                    }
+                        //  !friendProximity || counter > -9 ? <ActivityIndicator color='white'/> : friendProximity == hasProximity.current? <><View><Text style={{color:'white'}}>Successfully hifived</Text>  </View></>: <Text style={{color:'white'}}>Friend forget to hifi</Text>                
+                        friendProximity ? <Text style={{color:'white'}}>Successfully hifived</Text>  : counter > -9 ? <ActivityIndicator color='white'/> : <Text style={{color:'white'}}>Friend forget to hifi</Text>     
+                   }
                 </View>
             )
         }else if(!hasProximity.current){
@@ -124,7 +139,24 @@ export default function Chat({navigation,route}) {
         navigation.goBack();
         firestore().collection('users').doc(user_number).update({'onscreen':null})
     }
-    
+    const renderchat=()=>{
+        
+        return(
+            <View>
+                <FlatList
+                data={chat}
+                renderItem={({item})=>{
+                    
+                    return(
+                        <View>
+                            <Text style={{color:'white'}} >{item[0].timestamp.seconds}</Text>
+                            <Text style={{color:'white'}}>ih</Text>
+                        </View>
+                    )
+                }}/>
+            </View>
+        )
+    }
     return (
         <View style={{backgroundColor:'black',height:'100%',
         overflow:"scroll"}}> 
@@ -146,8 +178,10 @@ export default function Chat({navigation,route}) {
             </View>
             <View style={{flex:1,alignItems:'center',justifyContent:'center'}}>
            {
-               status.current=='onscreen'&& countdown() 
+               status.current=='onscreen'? countdown()  : renderchat() 
+                
            }
+
             
             </View>
 
