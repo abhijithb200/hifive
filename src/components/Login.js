@@ -1,18 +1,23 @@
 import React, { useState } from 'react';
-import { Button, TextInput} from 'react-native';
+import { Button, TextInput,StyleSheet,View,Text} from 'react-native';
 import auth from '@react-native-firebase/auth';
 
-function Login() {
+export default function Login() {
   // If null, no SMS has been sent
   const [confirm, setConfirm] = useState(null);
-
+  const [phonenum,setPhonenum] = useState(null);
   const [code, setCode] = useState('');
-
+  const [errmsg,setErrmsg] = useState('');
   
   // Handle the button press
   async function signInWithPhoneNumber(phoneNumber) {
-    const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
-    setConfirm(confirmation);
+    if(phoneNumber != null){
+      const confirmation = await auth().signInWithPhoneNumber(phoneNumber);
+      setConfirm(confirmation);
+    }else{
+      setErrmsg("Please type the number")
+    }
+    
   }
 
   async function confirmCode() {
@@ -25,10 +30,25 @@ function Login() {
 
   if (!confirm) {
     return (
-      <Button
-        title="Phone Number Sign In"
-        onPress={() => signInWithPhoneNumber('+919747150993')}
+      <View style={{...styles.buttonstyle}}>
+        <Text style={{fontSize:30,marginBottom:80,fontWeight:'bold',color:'white'}}>HIGHFIVE</Text>
+       
+        <Text style={{textAlign:'left',color:'white'}}>Enter your phone number</Text>
+        <View style={{flexDirection:'row',alignItems:'center',marginBottom:10}}>
+          <Text style={{color:'white'}}>+91</Text>
+          <TextInput keyboardType='numeric' style={{borderBottomWidth:1,width:200,borderBottomColor:'white',color:'white'}} value={phonenum} onChangeText={text => setPhonenum(text)}/>
+        </View>
+        <Text style={{padding:10}}>{errmsg}</Text>
+         <Button 
+        title="Sign In"
+        onPress={() => signInWithPhoneNumber(phonenum)}
+        color='#cc6098'
+        style={{paddingTop:40}}
       />
+        
+       
+      </View>
+     
     );
   }
 
@@ -39,4 +59,9 @@ function Login() {
     </>
   );
 }
-export default Login
+const styles = StyleSheet.create({
+  buttonstyle:{flex:1,
+      alignItems:'center',
+      justifyContent:'center',
+    backgroundColor:'#a8326f'}
+})

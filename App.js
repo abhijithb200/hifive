@@ -50,7 +50,7 @@ const RootHome = ()=>{
     if(auth.phoneNumber != null){
       // 
       dispatch(setUser('8606944241'))
-      setUuser(true)
+      setUuser(false)
     }
     })
   }, [])
