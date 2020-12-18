@@ -1,15 +1,18 @@
 import React,{useEffect,useState} from 'react'
-import { StyleSheet, Text, View ,FlatList,Button} from 'react-native'
+import { StyleSheet, Text, View ,FlatList,TouchableOpacity} from 'react-native'
 import * as Cont from 'expo-contacts'
 import {useSelector} from 'react-redux'
 import Frientlist from './Friendlist'
 import firestore  from '@react-native-firebase/firestore';
-
+import { AntDesign } from '@expo/vector-icons'; 
 
 export default function Contacts({route}) {
   const [localContacts,setLocalContacts] = useState([]);
   const [realusers,setRealusers] = useState([]);
   const [displayusers,setDisplayusers] = useState(null);
+
+  const [buttoncli,setButtoncli] = useState(0);
+  const [load,setLoad] = useState(false);
   const user_number = useSelector(state => state.user.user)
   
   const [friend,setfriends] = useState()
@@ -47,7 +50,9 @@ export default function Contacts({route}) {
   
   }, []);
   const getrealusers= ()=>{
-    var realusersarr = [];
+    setButtoncli(buttoncli+1)
+    if(buttoncli>=1){
+      var realusersarr = [];
   firestore().collection('users').onSnapshot(snapshot=>{
     snapshot.docs.map(doc=>{
       realusersarr.push(doc.id)
@@ -68,14 +73,27 @@ export default function Contacts({route}) {
     })
   
      setDisplayusers(displayusersarr)
-
+     
+    } if(buttoncli>1){
+      setLoad(true)
+    }
+    
   }
 
     return (
+     
         <View style={{backgroundColor:'black',height:'100%'}}>
-          <Button title="click" onPress={()=>getrealusers()}/>
+           {!load ?
+              <TouchableOpacity onPress={()=>getrealusers() } style={{flex:1,justifyContent:'center',alignItems:'center'}}>
+            <View>
+            <AntDesign name="reload1" size={46} color="white" />   
+            </View>
+            
+          </TouchableOpacity> : null
+      }
+         
           {
-            displayusers!= null &&  <FlatList
+            displayusers &&  <FlatList
             
             data={displayusers}
             renderItem={({item})=>{

@@ -37,8 +37,8 @@ export default function Login() {
   if (!confirm) {
     return (
       <View style={{...styles.buttonstyle}}>
-      <Image source={require('./../../assets/logiinlogo.png')} style={{width:300,height:120}}/>       
-        <Text style={{textAlign:'left',color:'black',marginTop:30}}>Enter your phone number</Text>
+      <Image source={require('./../../assets/logiinlogo.png')} style={{width:300,height:125}}/>       
+        <Text style={{color:'black',marginTop:30}}>Enter your phone number</Text>
         <View style={{flexDirection:'row',alignItems:'center',marginBottom:10}}>
           <Text style={{color:'black'}}>+91</Text>
           <TextInput keyboardType='numeric' style={{borderBottomWidth:1,width:200,borderBottomColor:'black',color:'black'}} value={phonenum} onChangeText={text => setPhonenum(text)}/>
@@ -66,10 +66,18 @@ export default function Login() {
   }
 
   return (
-    <>
-      <TextInput value={code} onChangeText={text => setCode(text)} />
-      <Button title="Confirm Code" onPress={() => confirmCode()} />
-    </>
+    <View style={styles.buttonstyle}>
+            <Image source={require('./../../assets/logiinlogo.png')} style={{width:300,height:125}}/>   
+            <Text style={{color:'black',marginTop:30}}>Enter otp</Text>
+    
+      <TextInput keyboardType='numeric' style={{borderBottomWidth:1,width:200,borderBottomColor:'black',color:'black',marginBottom:20}} value={code} onChangeText={text => setCode(text)} />
+      <TouchableOpacity onPress={() => confirmCode()}>
+        <View style={{backgroundColor:'#F5395B',width:200,height:50,elevation:1}}>
+           <Text style={{color:'white',fontWeight:'bold',fontSize:20,textAlign:'center',marginTop:8}}>Confirm code</Text>
+        </View>
+
+      </TouchableOpacity>
+    </View>
   );
 }
 const styles = StyleSheet.create({

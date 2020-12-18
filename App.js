@@ -1,6 +1,6 @@
 
 import React,{useState,useEffect} from 'react';
-import { StatusBar, Text, TextBase, View } from 'react-native';
+import { StatusBar, Text, TextBase, View,Image} from 'react-native';
 import Home from './src/components/Home'
 import {createStackNavigator} from '@react-navigation/stack'
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
@@ -23,9 +23,8 @@ const RootHome = ()=>{
   return(
     
     <>
-    <View style={{padding:5,backgroundColor:"#4B4B4B"}}>
-      
-    <Text style={{color:'lightgrey',fontSize:40,textAlign:'center',letterSpacing:8}}>high five</Text>
+    <View style={{padding:5,backgroundColor:"black",width:"100%",height:80}}>
+    <Image source={require('./assets/homelogo.jpeg')} style={{width:200,height:60,marginLeft:'auto',marginRight:'auto'}}/>  
     </View>
     
     <Tabs.Navigator style={{}}  tabBarOptions={{
@@ -44,13 +43,16 @@ const RootHome = ()=>{
 }
  function AppWrapper() {
   const dispatch = useDispatch();
-  const [user,setUuser] = useState(false)
+  const [user,setUuser] = useState(true)
+  dispatch(setUser('8606944241'))
   useEffect(() => {
     auth().onAuthStateChanged(auth=>{
-    if(auth.phoneNumber != null){
-      // 
+    if(auth?.phoneNumber != null){
+      const num = auth.phoneNumber;
+      const number = num.substring(num.length-10,num.length);
+      // change number in production
       dispatch(setUser('8606944241'))
-      setUuser(false)
+      setUuser(true)
     }
     })
   }, [])

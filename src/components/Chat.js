@@ -7,6 +7,7 @@ import firestore  from '@react-native-firebase/firestore';
 import axios from 'axios';
 import Pusher from 'pusher-js/react-native';
 import { FlatList } from 'react-native-gesture-handler';
+
 import io from 'socket.io-client';
 export default function Chat({navigation,route}) {
      const user_number = useSelector(state => state.user.user)
@@ -149,8 +150,8 @@ export default function Chat({navigation,route}) {
     const renderchat=()=>{
         
         return(
-            <View>
-                <FlatList
+            <View style={{width:300,flexDirection:'row',alignItems:'center'}}>
+                {/* <FlatList
                 data={chat}
                 renderItem={({item})=>{
                     
@@ -160,11 +161,14 @@ export default function Chat({navigation,route}) {
                             <Text style={{color:'white'}}>ih</Text>
                         </View>
                     )
-                }}/>
+                }}/> */}
+                <AntDesign name="exclamationcircle" size={34} color="yellow" />
+                <Text  style={{color:'white',fontSize:20,paddingLeft:5}}>Both of the people must be oncreen to continue.Tell them to come onscreen</Text>
             </View>
         )
     }
-    return (
+  
+        return (
         <View style={{backgroundColor:'black',height:'100%',
         overflow:"scroll"}}> 
             <View style={{flexDirection:'row',alignItems:'center',padding:10,backgroundColor:'#6C6666'}}>
