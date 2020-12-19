@@ -1,18 +1,18 @@
 import React, { useState ,useEffect,useRef} from 'react'
-import { StyleSheet, Text, View ,ActivityIndicator,Image,BackHandler} from 'react-native'
+import { StyleSheet, Text, View ,ActivityIndicator,Image,BackHandler,Modal} from 'react-native'
 import { AntDesign } from '@expo/vector-icons';
 import {useSelector} from 'react-redux'
 import Proximity from 'react-native-proximity';
 import firestore  from '@react-native-firebase/firestore';
 import axios from 'axios';
-import Pusher from 'pusher-js/react-native';
-import { FlatList } from 'react-native-gesture-handler';
 
+import { Entypo } from '@expo/vector-icons';
 import io from 'socket.io-client';
+import { Alert } from 'react-native';
 export default function Chat({navigation,route}) {
      const user_number = useSelector(state => state.user.user)
     const [screennum,setScreennum] = useState();
-    const [counter,setCounter] = useState(3);
+    const [counter,setCounter] = useState(5);
     
     const [chat,setChat] = useState([]);
     
@@ -20,6 +20,7 @@ export default function Chat({navigation,route}) {
     const hasProximity = useRef(false);
     const addchat = useRef(false);
     const status = useRef()
+    const modalVisible = useRef(false);
 
     // useEffect(() => {
     //     var pusher = new Pusher('a2145bfefb52497e7fcf', {
@@ -42,7 +43,6 @@ export default function Chat({navigation,route}) {
         socket.on(route.params.number,data=>{
             setfriendProximity(data.hifivestatus);
         })
-         console.log('andi')
      }, [])
 
     useEffect(() => {
@@ -85,6 +85,33 @@ export default function Chat({navigation,route}) {
         }
     }, [addchat.current])
     const countdown=()=>{
+        const noFriend=(sub)=>{
+            return(
+                <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
+                    
+                <AntDesign name="exclamationcircle" size={50} color="yellow" />
+                <Text  style={{color:'white',fontSize:20,paddingLeft:5,paddingTop:8,width:250}}>Seems like <Text style={{fontSize:30,textTransform:'uppercase'}}>{sub}</Text> forget to hifi</Text>
+
+                </View>
+            )
+        }
+        const sensor=(state)=>{
+            if(!state){
+                return(
+                    <View style={{height:300,width:300,padding:20,backgroundColor:'white',borderRadius:9}}>
+                        <Image source={require('./../../assets/sensor.png')} style={{width:200,height:150}}/> 
+                        <Text style={{fontSize:30,textAlign:'center'}}>Place your hand above the phone now!</Text>
+                    </View>
+                )
+            }else{
+                return(
+                    <View style={{width:200,height:200,padding:10,borderRadius:399,backgroundColor:'white'}}>
+                            <Entypo name="emoji-happy" size={40} color="red" style={{textAlign:'center',paddingTop:50}}/>
+                            <Text style={{fontSize:40,textAlign:'center'}}>OK</Text>
+                    </View>
+                )
+            }
+        }
         if( hasProximity.current && friendProximity){
             addchat.current = true;
         }
@@ -95,9 +122,9 @@ export default function Chat({navigation,route}) {
         }
  
         setTimeout(()=>{
-            setCounter(counter =>counter-1)
-        },2000);
-        
+            setCounter(counter =>counter-0.5)
+        },1000);
+      
         if(counter>0){
             return(
                 <View style={{backgroundColor:'white',width:'60%',height:'35%',borderRadius:200}}>
@@ -112,26 +139,27 @@ export default function Chat({navigation,route}) {
        
             return(
                 <View>
-                    <Text style={{color:'white'}}>{hasProximity.current? 'true':'false'}</Text>
+                    <Text style={{color:'white'}}>{hasProximity.current? sensor(true):sensor(false)}</Text>
 
                 </View>
             )
             
         }else if(counter <= -5 && hasProximity.current){
             Proximity.removeListener(callback);
+
             return(
                 <View>
                     {
                         // friendProximity == hasProximity.current ? <Text style={{color:'white'}}>SUSSESSFULLY HIFIVED</Text> :<Text style={{color:'white'}}>Someone missed the timing</Text> 
                         //  !friendProximity || counter > -9 ? <ActivityIndicator color='white'/> : friendProximity == hasProximity.current? <><View><Text style={{color:'white'}}>Successfully hifived</Text>  </View></>: <Text style={{color:'white'}}>Friend forget to hifi</Text>                
-                        friendProximity ? <Text style={{color:'white'}}>Successfully hifived</Text>  : counter > -9 ? <ActivityIndicator color='white'/> : <Text style={{color:'white'}}>Friend forget to hifi</Text>     
+                        friendProximity ? <Text style={{color:'white'}}>{modalVisible.current = true}</Text>  : counter > -9 ? <ActivityIndicator color='white'/> : <Text style={{color:'white'}}>{noFriend('your Friend')}</Text>     
                    }
                 </View>
             )
         }else if(!hasProximity.current){
             return(
                 <View>
-                    <Text style={{color:'white'}}>faalse</Text>
+                    <Text style={{color:'white'}}>{noFriend('you')}</Text>
 
                 </View>
             )
@@ -171,6 +199,21 @@ export default function Chat({navigation,route}) {
         return (
         <View style={{backgroundColor:'black',height:'100%',
         overflow:"scroll"}}> 
+         <Modal
+        animationType="slide"
+        statusBarTranslucent={true}
+        visible={modalVisible.current}
+        onRequestClose={() => {
+          modalVisible.current = false;
+          gooBack();
+          
+        }}
+      >
+          <View style={{backgroundColor:'#E5E5E5',height:'100%',flex:1,justifyContent:'center',alignItems:'center'}}>
+              <Text style={{color:'black',fontSize:60,fontWeight:'bold',paddingBottom:30}}>High Fived!</Text>
+              <Image source={require('./../../assets/hifive.png')} style={{width:240,height:230}}/> 
+          </View>
+      </Modal>
             <View style={{flexDirection:'row',alignItems:'center',padding:10,backgroundColor:'#6C6666'}}>
             <AntDesign name="back" size={24} color="white" onPress={()=>gooBack()}/>
             <Image source={require('../../assets/face.webp')} style={{width:60,height:60,borderRadius:100,marginLeft:20}}/>
@@ -195,6 +238,7 @@ export default function Chat({navigation,route}) {
 
             
             </View>
+           
 
         </View>
     )
